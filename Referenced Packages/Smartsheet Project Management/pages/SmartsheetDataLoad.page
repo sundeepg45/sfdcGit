@@ -1,0 +1,314 @@
+<apex:page controller="com_smartsheet.DL_controller_SmartsheetDataLoad" tabStyle="Smartsheet_Data_Load__tab" cache="false" expires="604800" action="{!refreshToken}">
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','DL_ga');
+
+  DL_ga('create', 'UA-63927504-1', 'auto');
+  DL_ga('send', 'pageview');
+</script>
+
+<apex:includeScript value="{!URLFOR($Resource.com_smartsheet__jquery)}"  />
+<apex:includeScript value="{!URLFOR($Resource.com_smartsheet__jquery_table_sorter, 'jquery.tablesorter.min.js')}" />
+
+<script type="text/javascript">
+var j$ = jQuery.noConflict();
+var NAMESPACE_PREFIX = "{!NamespacePrefix}";
+var WINDOW_NAMESPACE_PREFIX = window;
+if(NAMESPACE_PREFIX.length > 2){
+    WINDOW_NAMESPACE_PREFIX = window[NAMESPACE_PREFIX.substring(0,NAMESPACE_PREFIX.length-2)];
+}
+var RESOURCE_PATH = '{!URLFOR($Resource.SmartsheetDataLoad)}';
+</script>
+<script type="text/javascript" src="{!URLFOR($Resource.SmartsheetDataLoad, '/javascript/SmartsheetDataLoad.page.minified0.js')}"></script>
+
+<link rel="stylesheet" type="text/css" href="{!URLFOR($Resource.jquery_table_sorter, 'style.css')}" />
+<link rel="stylesheet" type="text/css" href="{!URLFOR($Resource.select2_3_5_2, 'select2-3.5.2/select2.css')}" />
+<link rel="stylesheet" type="text/css" href="{!URLFOR($Resource.bootstrap3_3_2, 'dist/css/bootstrap.min.css')}" />
+<link rel="stylesheet" type="text/css" href="{!URLFOR($Resource.bootstrap3_3_2, 'dist/css/bootstrap-switch.min.css')}" />
+<link rel="stylesheet" type="text/css" href="{!URLFOR($Resource.SmartsheetDataLoad, '/css/SmartsheetDataLoad.page.minified0.css')}" />
+
+<div class="bs DL_EntirePage">
+    <div class="DL_Loading"><apex:image value="{!URLFOR($Resource.com_smartsheet__SmartsheetDataLoad, 'images/spinner-large.gif')}" /></div>
+
+    <apex:outputPanel rendered="{!NOT(hasAccessToCustomObjects)}">
+        <script type="text/javascript">
+            j$(document).ready(function(){
+                showMessage('Your profile does not have access to the custom objects used by Smartsheet Data Manager. Access is required for this application to work correctly. Please ask your Salesforce administrator to give access to your account. <a target="_blank" href="https://help.salesforce.com/htviewhelpdoc?id=admin_insufficient_privileges_flowchart.htm&siteLang=en_US">More info</a>');
+                j$('#tmpMessageContainerMainPage .close').hide();
+            });
+        </script>
+    </apex:outputPanel>
+
+
+
+
+
+    <apex:form rendered="{!IsLoggedIn}">
+        <div class="loginMenu">
+            <a href="mailto:api@smartsheet.com">Smartsheet Support</a> | 
+            <apex:outputText value=" {!SSEmail}" styleClass="userLoggedIn" /> <apex:commandLink value="Disconnect" styleClass="disconnectLink" onclick="return confirm('If you disconnect your workflows will not run. Are you sure you want to disconnect?')"  action="{!disconnect}" />
+            <br /><a href="https://appexchange.salesforce.com/listingDetail?listingId=a0N30000003JSACEA4" target="_blank" class="alert alert-danger upgradeAvailable" id="upgradeVersion">Upgrade Available!</a>
+        </div>
+    </apex:form>
+
+    <apex:image value="{!URLFOR($Resource.com_smartsheet__SmartsheetDataLoad, 'images/logo-smartsheet-data-manager.png')}" width="164" height="41" styleClass="SmartsheetLogo" />
+
+        <apex:pageMessages escape="false" />
+
+    <div id="tmpMessageContainerMainPage" class="alert alert-warning">
+        <a href="javascript:void(0);" onclick="j$(this).parent().hide()" class="close">&times;</a>
+        <div id="tmpMessageTextWrapperMainPage">
+            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+            <div id="tmpMessageTextMainPage"></div>
+        </div>
+    </div>
+    
+    <apex:outputPanel id="globalMessages" rendered="{!globalMessages.size > 0}">
+        <apex:repeat value="{!globalMessages}" var="message">
+            <div id="{!htmlencode(message.Id)}" class="alert alert-warning">
+                <a href="javascript:void(0);" class="close globalWarning">&times;</a>
+                <div class="globalMessageTimestamp"><apex:outputfield value="{!message.SystemModStamp}" /></div>
+                <div class="globalMessageText">
+                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                    <apex:outputText escape="false" value="{!message.com_smartsheet__message__c}" /><apex:outputText rendered="{!message.com_smartsheet__occurrences__c != null && message.com_smartsheet__occurrences__c > 1}" value=" This has occurred {!message.com_smartsheet__occurrences__c} times." />
+                </div>
+            </div>
+        </apex:repeat>
+    </apex:outputPanel>
+
+    <apex:form rendered="{!OR(NOT(acceptedEULA),NOT(IsLoggedIn))}">
+        <div class="loginFormContainer">
+            <div class="loginFormText">
+                <apex:outputText rendered="{!acceptedEULA}"><p>Please click below to provide access to your Smartsheet account.</p></apex:outputText>
+
+                <apex:outputText rendered="{!NOT(acceptedEULA)}">
+                    <p>Welcome to the private beta program for our Smartsheet Data Manager for Salesforce application.</p>
+                     
+                    <p>Please note that this is a beta version of our application, which is still undergoing development and testing before its official release. The application is provided “as is” and your use of the application is at your own risk.  You are solely responsible for the data you transmit or use via the application.</p>
+                     
+                    <p>Contact <a href="mailto:api@smartsheet.com">api@smartsheet.com</a> about any issues or feature requests. Your help in this regard is greatly appreciated.</p>
+
+                    <p>To access the private beta, please review the <a href="{!URLFOR($Resource.SmartsheetDataLoad, 'Smartsheet_SFDC_Integration_License_Agreement.pdf')}" target="_blank">License Agreement</a> and accept it below:</p>
+
+                    <p><label for="acceptTerms"><input type="checkbox" name="acceptTerms" onclick="if(this.checked){j$('.authorizeButton').removeClass('disabledButton');}else{j$('.authorizeButton').addClass('disabledButton');}" id="acceptTerms" /> Accept License Agreement</label></p>
+                </apex:outputText>
+
+            </div>
+            <apex:commandLink value="Connect to Smartsheet" action="{!authorize}" onclick="return validateEULA()" styleClass="DL_TabButton authorizeButton {!if(acceptedEULA,'','disabledButton')} " />
+        </div>
+        <apex:image value="{!URLFOR($Resource.com_smartsheet__SmartsheetDataLoad, 'images/smartsheet-screen-3d.png')}" styleClass="teaserScreen" />
+
+    </apex:form>
+
+
+
+
+
+
+
+    <apex:outputPanel rendered="{!AND(IsLoggedIn,acceptedEULA)}">
+
+        <div class="workflowDirections">
+            Create a workflow to export to or import from Smartsheet.
+        </div>
+
+        <apex:form >
+        <apex:commandLink action="{!ShowExportWindow}" rerender="modalWindow" onclick="editExportConfig=false;j$('.DL_Loading').
+        show();selectedExportConfig='';" styleClass="DL_TabButton newExport">New Export <apex:image value="{!URLFOR($Resource.com_smartsheet__SmartsheetDataLoad, 'images/icon-export-white.png')}" width="20" height="17" /></apex:commandLink>
+
+        <apex:commandLink action="{!ShowImportWindow}" rerender="modalWindow" onclick="editImportConfig=false;j$('.DL_Loading').show();selectedImportConfig='';" styleClass="DL_TabButtonOrange newImport">New Import <apex:image value="{!URLFOR($Resource.com_smartsheet__SmartsheetDataLoad, 'images/icon-import-white.png')}" width="20" height="17" /></apex:commandLink>
+
+        <apex:outputText styleClass="detailContainer">
+            <ul class="nav nav-tabs" id="DL_TabMenu">
+                <li class="active"><a href="javascript:void(0);" onmousedown="toggleTab(this.id)" id="job">Workflows</a></li>
+                <li><a href="javascript:void(0);" onmousedown="toggleTab(this.id)" id="history">History</a></li>
+                <li><apex:commandLink reRender="activeJobsContainer,historyContainer,globalMessages,pageLoad" onclick="DL_ga('send', 'event', 'Tab', 'refresh');j$(this).addClass('refreshLinkSpinner')" id="refreshPage" styleClass="glyphicon glyphicon-refresh refreshLink" /></li>
+            </ul>
+
+            <apex:outputPanel id="activeJobsContainer" >
+                <div id="activeJobWrapper">
+                    <table border="0" cellpadding="0" cellspacing="0" class="mainTable tablesorter" id="activeJobs">
+                        <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Salesforce</th>
+                            <th></th>
+                            <th>Smartsheet</th>
+                            <!--<th style="text-align: center;">Auto Sync</th>-->
+                            <th>Last Run</th>
+                            <th>&nbsp;</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            <apex:repeat value="{!activeJobs}" var="aj">
+
+                                <tr id="config{!htmlencode(aj.Id)}" class="{!IF(aj.seenByUser__c, '','highlightNewRow')}">
+                                    <td>
+                                        <span class="editJobName"><input class="form-control" maxlength="100" type="text" value="{!htmlencode(aj.jobName__c)}" /><a href="javascript:void(0);" class="DL_TabButton saveJobName">Save</a></span>
+
+                                        <span class="jobName"><span class="jobNameText">{!htmlencode(aj.jobName__c)}</span><a href="javascript:void(0);" class="editJobAction"><span class="glyphicon glyphicon-pencil"></span></a><span class="spinnerSmall" style="display: none; margin-left:10px;"><apex:image value="{!URLFOR($Resource.com_smartsheet__SmartsheetDataLoad, 'images/spinner-small.gif')}" /></span></span>
+                                    </td>
+                                    <td>{!htmlencode(aj.com_smartsheet__objectName__c)}</td>
+                                    <td>
+                                        <apex:image title="export" rendered="{!aj.com_smartsheet__direction__c == 'export'}" value="{!URLFOR($Resource.com_smartsheet__SmartsheetDataLoad, 'images/icon-export-dark.png')}" width="20" height="17" />
+                                        <apex:image title="import" rendered="{!aj.com_smartsheet__direction__c == 'import'}" value="{!URLFOR($Resource.com_smartsheet__SmartsheetDataLoad, 'images/icon-import-orange.png')}" width="20" height="17" />
+                                    </td>
+                                    <td>
+                                        
+                                        <span class="editSheetName"><input class="form-control" maxlength="50" type="text" value="{!htmlencode(aj.com_smartsheet__sheetName__c)}" /><a href="javascript:void(0);" class="DL_TabButton saveSheetName">Save</a></span>
+                                        
+                                        <span class="sheetName">
+                                            <apex:outputLink rendered="{!NOT(ISBLANK(aj.com_smartsheet__sheetPermalink__c))}" value="{!htmlencode(aj.com_smartsheet__sheetPermalink__c)}" target="_blank" styleClass="sheetNameText">{!htmlencode(aj.com_smartsheet__sheetName__c)}</apex:outputLink>
+                                            <apex:outputText rendered="{!ISBLANK(aj.com_smartsheet__sheetPermalink__c)}" value="{!htmlencode(aj.com_smartsheet__sheetName__c)}" />
+                                            <apex:outputText rendered="{!NOT(ISBLANK(aj.com_smartsheet__sheetPermalink__c))}">
+                                                <a href="javascript:void(0);" class="editSheetAction"><span class="glyphicon glyphicon-pencil"></span></a><span class="spinnerSmall" style="display: none; margin-left:10px;"><apex:image value="{!URLFOR($Resource.com_smartsheet__SmartsheetDataLoad, 'images/spinner-small.gif')}" /></span>
+                                            </apex:outputText>
+                                        </span>
+                                        
+                                    </td>
+                                     <!--<td><input type="checkbox" name="toggleSwitch" checked="checked" /></td>-->
+                                     <td>
+                                        <apex:outputText rendered="{!AND(aj.DL_History2__r != null, aj.DL_History2__r.size > 0,NOT(ISBLANK(aj.DL_History2__r[0].systemModStamp)))}" value="{0,date,MMM dd, yyyy HH:mm z}">
+                                            <apex:param value="{!aj.DL_History2__r[0].systemModStamp}" /> 
+                                        </apex:outputText>
+                                    </td>
+                                    <td class="actionMenu">
+                                        <apex:outputText >
+                                            <apex:outputText rendered="{!aj.com_smartsheet__direction__c == 'export'}">
+                                                <apex:commandLink value="" title="Run Job Again" action="{!showExportWindow}" rerender="modalWindow" onclick="editExportConfig=false;j$('.DL_Loading').show();selectedExportConfig = '{!aj.id}';" styleClass="glyphicon glyphicon-play" />
+                                                <apex:commandLink value="" title="Edit Settings" action="{!showExportWindow}" rerender="modalWindow" onclick="editExportConfig=true;j$('.DL_Loading').show();selectedExportConfig = '{!aj.id}';" styleClass="glyphicon glyphicon-cog" />
+                                            </apex:outputText>
+                                            <apex:outputText rendered="{!aj.com_smartsheet__direction__c == 'import'}">
+                                                <apex:commandLink value="" title="Run Job Again" action="{!showImportWindow}" rerender="modalWindow" onclick="editImportConfig=false;j$('.DL_Loading').show();selectedImportConfig = '{!aj.id}';" styleClass="glyphicon glyphicon-play" />
+                                                <apex:commandLink value="" title="Edit Settings" action="{!showImportWindow}" rerender="modalWindow" onclick="editImportConfig=true;j$('.DL_Loading').show();selectedImportConfig = '{!aj.id}';" styleClass="glyphicon glyphicon-cog" />
+                                            </apex:outputText>
+                                            <a href="javascript:void(0)" id="deleteConfig" class="glyphicon glyphicon-trash" title="Delete Job" onclick="deleteConfig('{!aj.Id}')"></a>
+                                        </apex:outputText>
+                                    </td>
+                                </tr>
+                            </apex:repeat>
+                            <tr style="{!if(hasConfigs,'display: none;','')}" id="noConfigs"><td colspan="6">There are no workflows.  To create a new workflow, click the export or import button.</td></tr>
+                        </tbody>
+                    </table>
+                    <script type="text/javascript">
+                            j$(document).ready(function(){
+                                try{
+                                    if('{!hasConfigs}' == 'true' ) {
+                                        j$('#activeJobs').tablesorter({
+                                            headers: {5: {sorter: false}},
+                                            sortList: [[4,1]],
+                                            cancelSelection: false
+                                        });
+                                    }
+                                }catch(ex){}
+                            });
+                    </script>
+                </div>
+            </apex:outputPanel>
+
+
+
+            <apex:outputPanel id="historyContainer">
+                <div id="historyWrapper">
+                    <table border="0" cellpadding="0" cellspacing="0" class="mainTable tablesorter" id="historyTable">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Salesforce</th>
+                                <th></th>
+                                <th>Smartsheet</th>
+                                <th>Last Run</th>
+                                <th># Records</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <apex:repeat value="{!history}" var="j">
+                            <tr id="history{!htmlencode(j.configId__c)}" class="{!IF(j.configId__r.seenByUser__c, '','highlightNewRow')}">
+                                <td>
+                                    <span class="jobName"><span class="jobNameText">{!htmlencode(j.configId__r.jobName__c)}</span><a href="javascript:void(0);" class="editJobAction"></a></span>
+
+                                </td>
+                                <td>{!htmlencode(j.configId__r.objectName__c)}</td>
+                                <td>
+                                    <apex:image title="export" rendered="{!j.configId__r.com_smartsheet__direction__c == 'export'}" value="{!URLFOR($Resource.com_smartsheet__SmartsheetDataLoad, 'images/icon-export-dark.png')}" width="20" height="17" />
+                                    <apex:image title="import" rendered="{!j.configId__r.com_smartsheet__direction__c == 'import'}" value="{!URLFOR($Resource.com_smartsheet__SmartsheetDataLoad, 'images/icon-import-orange.png')}" width="20" height="17" />
+                                </td>
+                                <td>
+                                    <span class="sheetName">
+                                        <apex:outputLink rendered="{!NOT(ISBLANK(j.configId__r.com_smartsheet__sheetPermalink__c))}" value="{!htmlencode(j.configId__r.com_smartsheet__sheetPermalink__c)}" target="_blank" styleClass="sheetNameText">{!htmlencode(j.configId__r.com_smartsheet__sheetName__c)}</apex:outputLink>
+                                        <apex:outputText rendered="{!ISBLANK(j.configId__r.com_smartsheet__sheetPermalink__c)}" value="{!htmlencode(j.configId__r.com_smartsheet__sheetName__c)}" />
+                                    </span>
+                                </td>
+                                <td>
+                                    <apex:outputText value="{0,date,MMM dd, yyyy HH:mm z}">
+                                        <apex:param value="{!j.createdDate}" /> 
+                                    </apex:outputText>
+                                </td>
+                                <td class="recordsChanged">{!j.com_smartsheet__recordsChanged__c}</td>
+                                <td class="historyStatus">
+                                    <apex:outputText styleClass="status{!SUBSTITUTE(j.com_smartsheet__status__c,' ','')}" value="{!j.com_smartsheet__status__c}" />
+                                    <apex:outputText rendered="{!NOT(ISBLANK(j.com_smartsheet__errorMessage__c))}" escape="false" value=" - {!j.com_smartsheet__errorMessage__c}" />
+                                    <div id="{!j.Id}" class="extendedErrorMessage"><apex:outputField value="{!j.com_smartsheet__extendedErrorMessage__c}" /></div>
+                                    <apex:outputText rendered="{!j.com_smartsheet__extendedErrorMessage__c != null}"> [<a href="javascript:void(0)" style="font-size: smaller;" id="{!j.Id}more" onclick="j$('#{!j.Id}').toggle(); j$('#{!j.Id}more').toggle(); j$('#{!j.Id}less').toggle();">More Info</a><a href="javascript:void(0)" style="font-size: smaller; display: none;" id="{!j.Id}less" onclick="j$('#{!j.Id}').toggle(); j$('#{!j.Id}more').toggle(); j$('#{!j.Id}less').toggle();">Less Info</a>]</apex:outputText>
+                                </td>
+                            </tr>
+                            </apex:repeat>
+                            <tr style="{!if(hasConfigs,'display: none;','')}" id="noConfigs"><td colspan="7">There are no workflows.  To create a new workflow, click the export or import button.</td></tr>
+                        </tbody>
+                    </table>
+                    <script type="text/javascript">
+                        j$(document).ready(function(){
+                            try{
+                                if('{!hasConfigs}' == 'true') {
+                                    j$('#historyTable').tablesorter({
+                                        headers: {6: {sorter: false}},
+                                        sortList: [[4,1]],
+                                        cancelSelection: false
+                                    });
+                                }
+                            }catch(ex){}
+                        });
+
+                    </script>
+                </div>
+            </apex:outputPanel>
+
+        </apex:outputText>
+        </apex:form>
+
+
+        <apex:outputPanel id="modalWindow">
+            <c:DL_Export rendered="{!exportWindow}"  logger="{!log}" />
+            <c:DL_Import rendered="{!importWindow}"  logger="{!log}" />
+        </apex:outputPanel>
+
+        
+    </apex:outputPanel>
+</div>
+<apex:form ><apex:actionFunction name="saveLoggingData" action="{!saveLogMessage}" rerender="blah"></apex:actionFunction></apex:form>
+
+<apex:outputPanel id="pageLoad">
+    <script type="text/javascript">
+        // This javascript is called when refreshing a section of the page
+        if (pageIsLoaded && pageIsLoaded == true){
+            var currentTab = j$('#DL_TabMenu .active:first a').attr('id');
+            pageLoad();
+            
+            if(currentTab){
+                toggleTab(currentTab);
+            }
+            j$('.refreshLink').removeClass('refreshLinkSpinner');
+        }
+        var pageIsLoaded = true;
+    </script>
+</apex:outputPanel>
+
+<script type="text/javascript" src="{!URLFOR($Resource.bootstrap3_3_2, 'dist/js/bootstrap-switch.min.js')}"></script>
+<script type="text/javascript" src="{!URLFOR($Resource.select2_3_5_2, 'select2-3.5.2/select2.min.js')}"></script>
+<script type="text/javascript" src="{!URLFOR($Resource.SmartsheetDataLoad, '/javascript/SmartsheetDataLoad.page.minified1.js')}"></script>
+</apex:page>

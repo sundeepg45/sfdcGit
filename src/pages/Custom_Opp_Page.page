@@ -1,0 +1,61 @@
+<apex:page >
+<head>
+<script type="text/javascript">
+setTimeout(function(){var a=document.createElement("script");
+var b=document.getElementsByTagName("script")[0];
+a.src=document.location.protocol+"//script.crazyegg.com/pages/scripts/0050/0011.js?"+Math.floor(new Date().getTime()/3600000);
+a.async=true;a.type="text/javascript";b.parentNode.insertBefore(a,b)}, 1);
+</script>
+</head>
+       <style>
+.sidebarModuleHeader
+{
+background-image: transparent!important;
+background-color: #3B5998!important;
+color: #FFFFFF!important;
+background-image: url(http://s32.postimg.org/mva3qzql1/Red_hat.png)!important;
+<!-- 
+Upload the file to your static resourse, and change the backround-image's url to the direct link of the static resourse. 
+It is a much better way of using images. Is strongly recommended, there are no secuirty risks.
+Steps to retireive direct link:
+1. Upload image to Static Resource.
+2. Click on Static Resource's Name from the list.
+3. Right click the View File link on the Static Resource's detail page, and select Copy Link Location.
+4. The Static Resource's Link comes in this format: https://na11.salesforce.com/resource/1295402480000/xyz
+-->
+background-repeat: repeat!important;
+background-attachment: fixed!important;
+}
+
+.sfdcBody, #AppBodyHeader, #AppBodyHeader *{
+background-image: url(http://s32.postimg.org/mva3qzql1/Red_hat.png)!important;
+<!-- 
+Upload the file to your static resourse, and change the backround-image's url to the direct link of the static resourse. 
+It is a much better way of using images. Is strongly recommended, there are no secuirty risks.
+Steps to retireive direct link:
+1. Upload image to Static Resource.
+2. Click on Static Resource's Name from the list.
+3. Right click the View File link on the Static Resource's detail page, and select Copy Link Location.
+4. The Static Resource's Link comes in this format: https://na11.salesforce.com/resource/1295402480000/xyz
+-->
+background-repeat: repeat!important;
+background-attachment: fixed!important;
+background-color: none!important;
+color: #FFFFFF!important;}
+#AppBodyHeader{
+background-image: none!important;
+}
+.tabNavigation .allTabsArrow, .tabMenu .allTabsArrow {
+    background-image: url("/img/alohaSkin/addTabs.png")!important;
+    height: 12px !important;
+    width: 12px !important;
+}
+<!--The below mentioned line removes the Logo from the page's top left corner. Remove it in case its not required-->
+#phHeaderLogoImage {display:none!important;}
+</style>
+            <apex:panelGrid headerClass="Old values" columns="3" columnClasses="monoPg" width="70%" border="1">
+                <apex:outputLabel >111</apex:outputLabel>
+                <apex:outputLabel >222</apex:outputLabel>
+                <apex:outputLabel >333</apex:outputLabel>
+            </apex:panelGrid>
+</apex:page>

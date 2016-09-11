@@ -1,0 +1,36 @@
+<apex:page standardController="Account">
+<apex:form >
+<apex:pageBlock >
+    <apex:pageBlockSection columns="4">
+<apex:outputPanel id="ThePanel">
+ 
+<table class="list" border="0" cellpadding="0" cellspacing="0">
+    <tr class="headerRow">
+         <th>Name</th>
+     </tr>
+     <tr class="headerRow">
+         <th>Action</th>
+     </tr>
+          
+     <tr class="dataRow" >
+         <td><apex:inputField value="{!Account.Name}" /></td>
+         <!-- <td><apex:commandButton action="{!AddRecord}" value="Add Record" reRender="ThePanel" /></td> -->
+     </tr>
+ 
+    <apex:repeat value="{!Account}" var="r" >
+        <tr class="dataRow" onblur="if (window.hiOff){hiOff(this);}" onfocus="if (window.hiOn){hiOn(this);}" onmouseout="if (window.hiOff){hiOff(this);}" onmouseover="if (window.hiOn){hiOn(this);}">
+            <td><apex:inputField value="{!r.Name}" /></td>
+            <td>
+                <apex:commandLink value="Remove" title="Remove record {!r.Name}" reRender="ThePanel">
+                    <apex:param name="remId" value="{!r.Id}" />
+                </apex:commandLink>
+            </td>
+       </tr>
+    </apex:repeat> 
+</table>
+ 
+</apex:outputPanel>      
+    </apex:pageBlockSection>
+</apex:pageBlock>
+</apex:form>
+</apex:page>

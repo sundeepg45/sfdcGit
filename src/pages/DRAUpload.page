@@ -1,0 +1,23 @@
+<apex:page sidebar="false" controller="FOTAuploader">
+    <apex:form >
+    <apex:sectionHeader title="Upload FOTA data from CSV file"/>
+    <apex:pagemessages />
+        <apex:pageBlock >
+        <center>
+        <apex:inputFile value="{!contentFile}" filename="{!nameFile}" /> <apex:commandButton action="{!ReadFile}" value="Upload File" id="theButton" style="width:70px;"/>
+        <br/> <br/> <font color="red"> <b>Note: Please use the standard .CSV file from the Retail Activations Portal. </b> </font>
+        </center>
+        
+        
+        <apex:pageblocktable value="{!uploadedActivations}" var="dra" rendered="{!NOT(ISNULL(uploadedActivations))}">
+                      <apex:column value="{!dra.Contract_Type__c}" />
+                      <apex:column value="{!dra.List_Price__c}" />
+                      <apex:column value="{!dra.Sales_Price__c}" />              
+                      <apex:column value="{!dra.Expences__c}" />
+                      <apex:column value="{!dra.Risk_Contingency__c}" />              
+                      <apex:column value="{!dra.Project_Management_Time__c}" />
+        </apex:pageblocktable>
+        
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

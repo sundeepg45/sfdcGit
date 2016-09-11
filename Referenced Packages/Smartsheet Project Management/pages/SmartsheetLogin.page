@@ -1,0 +1,3 @@
+<apex:page showHeader="true" tabStyle="Smartsheet_Data_Load__tab" sidebar="true" controller="com_smartsheet.DL_controller_SmartsheetDataLoad" action="{!storeAccessToken}">
+<apex:pageMessages escape="false" />
+</apex:page>
